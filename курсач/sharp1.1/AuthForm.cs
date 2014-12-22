@@ -12,7 +12,7 @@ namespace networks
     public partial class AuthForm : Form
     {
 
-        string login = "user";
+        //string login = "user";
         string pass = "qwerty";
         bool status = false;
 
@@ -22,6 +22,11 @@ namespace networks
             InitializeComponent();
         }
 
+        public void name_of_user(ref string name)
+        {
+            name = textBox1.Text;
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -29,7 +34,7 @@ namespace networks
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text == login && textBox2.Text == pass)
+            if (/*textBox1.Text == login && */ textBox2.Text == pass)
             {
                 status = true;
                 this.Close();

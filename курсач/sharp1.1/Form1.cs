@@ -22,6 +22,8 @@ namespace networks
         public bool send_allow = true;
 
         string broadcast_check = "some_word";
+        string login = "";
+        string another_login = "";
         string host;
         string IP;
         int port;
@@ -33,8 +35,6 @@ namespace networks
             string myIP = System.Net.Dns.GetHostByName(myHost).AddressList[0].ToString();
             return myIP;
         }
-
-
         public void toLog(string text)
         {
             string line = Environment.NewLine + System.DateTime.Now.ToUniversalTime() + " : " + text;
@@ -43,11 +43,21 @@ namespace networks
             System.IO.File.AppendAllText("log.txt", line);
 
         }
-
+        private void ToLogSafe(string text)
+        {
+            if (InvokeRequired)
+                this.BeginInvoke(new Action<string>((s) =>
+                {
+                    toLog(s);
+                }), text);
+            else toLog(text);
+        }
         public Form1()
         {
             AuthForm form = new AuthForm();
-            //form.ShowDialog();
+            form.ShowDialog();
+            form.name_of_user(ref login);
+            broadcast_check = broadcast_check + " " + login;
             InitializeComponent();
             comboBox1.SelectedIndex = 0;
             IP = getMyIp();
@@ -56,7 +66,7 @@ namespace networks
             recieveThread.WorkerSupportsCancellation = true;
             recieveThread.RunWorkerAsync();
             broadcastThread.RunWorkerAsync();
-            richTextBox1.Text = "Программа запущена успешно!";
+            richTextBox1.Text = "Программа запущена успешно! " + IP;
 
 
         }
@@ -160,7 +170,7 @@ namespace networks
 
                                     if (!AcessFileSafe(f))
                                     {
-                                        ToLogSafe("Передача отклонена пользователем!");
+                                        ToLogSafe("Передача отклонена пользователем! " + another_login);
                                         mess[0] = 0;
                                         ReceiveSocket.Send(mess);
                                         return;
@@ -218,7 +228,7 @@ namespace networks
 
                         ReceiveSocket.Close();
 
-                        ToLogSafe("Приём " + resFilePath + " завершен!");
+                        ToLogSafe("Приём " + resFilePath + " завершен! " + login);
 
                     }
 
@@ -244,15 +254,7 @@ namespace networks
             sendThread.CancelAsync();
         }
 
-        private void ToLogSafe(string text)
-        {
-            if (InvokeRequired)
-                this.BeginInvoke(new Action<string>((s) =>
-                {
-                    toLog(s);
-                }), text);
-            else toLog(text);
-        }
+
 
 
         private bool AcessFileSafe(file_desc file)
@@ -306,7 +308,7 @@ namespace networks
             Listener = new TcpListener(port);
             IPEndPoint EndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
             Socket Connector = new Socket(EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            ToLogSafe("Устанавливается соединение.");
+            //ToLogSafe("Устанавливается соединение.");
             try
             {
                 Connector.Connect(EndPoint);
@@ -317,7 +319,7 @@ namespace networks
                 ToLogSafe(e.Message.ToString());
                 return;
             }
-            ToLogSafe("Соединение установлено!");
+            //ToLogSafe("Соединение установлено!");
 
             //Получаем имя из полного пути к файлу
             //StringBuilder FileName = new StringBuilder(openFileDialog1.FileName);
@@ -353,7 +355,7 @@ namespace networks
                     //Вначале отправим название файла
                     Connector.Send(First256Bytes.ToArray());
                     Connector.Send(Second256Bytes.ToArray());
-                    ToLogSafe("Ожидаем разрешения");
+                    ToLogSafe("Отправка файла " + login + " " + resFileName);
                     while (!access) // Ожидаем подтвердения
                     {
                         byte[] mess = new byte[1];
@@ -361,7 +363,7 @@ namespace networks
                         access = mess[0] == 0 ? false : true;
                     }
 
-                    ToLogSafe("Разрешение получено. Начинается передача файла");
+                    ToLogSafe("Начата отправка файла " + login + " " + resFileName);
                     Stopwatch stopWatch = new Stopwatch();
                     Stopwatch stopWatch2 = new Stopwatch();
                     int count = 0;
@@ -419,7 +421,7 @@ namespace networks
                 }
             }
             //Завершаем передачу данных
-            ToLogSafe("Передача завершена!");
+            ToLogSafe("Закончена отпрака файла " + login + " " + resFileName);
             Connector.Close();
         }
 
@@ -452,7 +454,7 @@ namespace networks
         {
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            IPEndPoint iep = new IPEndPoint(IPAddress.Broadcast, 9050);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Broadcast, 6789);
             string hostname = Dns.GetHostName();
             byte[] data = Encoding.ASCII.GetBytes(message);
             sock.SendTo(data, iep);
@@ -475,7 +477,7 @@ namespace networks
         {
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             sock.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
-            IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ip), 9050);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Parse(ip), 6789);
             //string hostname = Dns.GetHostName();
             byte[] data = Encoding.ASCII.GetBytes(message);
             sock.SendTo(data, iep);
@@ -495,10 +497,10 @@ namespace networks
         private void broadcastThread_DoWork(object sender, DoWorkEventArgs e)
         {
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 9050);
+            IPEndPoint iep = new IPEndPoint(IPAddress.Any, 6789);
             sock.Bind(iep);
             EndPoint ep = (EndPoint)iep;
-            ToLogSafe("Готов к приёму широковещательных сообщений!");
+            //ToLogSafe("Готов к приёму широковещательных сообщений!");
 
             byte[] data = new byte[256];
             while (true)
@@ -507,17 +509,19 @@ namespace networks
                 string stringData = Encoding.ASCII.GetString(data, 0, recv);
                 string ip = ep.ToString();
                 ip = ip.Split(':')[0];
-                if (ip == IP)
-                    return;
-                if (stringData == broadcast_check)
+                if (ip != IP)
                 {
-                    ToLogSafe("Пришло широковещательное сообщение от " + ip);
-                    //comboBox1.Items.Add(ip);
-                    sendMesSafe(ip);
-                }
-                if (stringData == "ans")
-                {
-                    toComboSafe(ip);
+                    if (stringData.Split(' ')[0] == broadcast_check.Split(' ')[0])
+                    {
+                        ToLogSafe("Пришло широковещательное сообщение от " + stringData.Split(' ')[1]);
+                        another_login = stringData.Split(' ')[1];
+                        //comboBox1.Items.Add(ip);
+                        sendMesSafe(ip);
+                    }
+                    if (stringData == "ans")
+                    {
+                        toComboSafe(ip);
+                    }
                 }
             }
         }
