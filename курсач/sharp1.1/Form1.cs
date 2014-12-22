@@ -23,10 +23,11 @@ namespace networks
 
         string broadcast_check = "some_word";
         string host;
+        string IP;
         int port;
 
 
-        public string MyIp()
+        public string getMyIp()
         {
             string myHost = System.Net.Dns.GetHostName();
             string myIP = System.Net.Dns.GetHostByName(myHost).AddressList[0].ToString();
@@ -46,9 +47,10 @@ namespace networks
         public Form1()
         {
             AuthForm form = new AuthForm();
-            form.ShowDialog();
+            //form.ShowDialog();
             InitializeComponent();
             comboBox1.SelectedIndex = 0;
+            IP = getMyIp();
 
             recieveThread.WorkerReportsProgress = true;
             recieveThread.WorkerSupportsCancellation = true;
@@ -505,6 +507,8 @@ namespace networks
                 string stringData = Encoding.ASCII.GetString(data, 0, recv);
                 string ip = ep.ToString();
                 ip = ip.Split(':')[0];
+                if (ip == IP)
+                    return;
                 if (stringData == broadcast_check)
                 {
                     ToLogSafe("Пришло широковещательное сообщение от " + ip);
@@ -515,10 +519,7 @@ namespace networks
                 {
                     toComboSafe(ip);
                 }
-
-
             }
-            sock.Close();
         }
         private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
         {
