@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace sharp1._1
+namespace networks
 {
     static class Program
     {

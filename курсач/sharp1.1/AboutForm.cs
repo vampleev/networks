@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace sharp1._1
+namespace networks
 {
     public partial class AboutForm : Form
     {

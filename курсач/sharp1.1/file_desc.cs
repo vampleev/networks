@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace sharp1._1
+namespace networks
 {
     class file_desc
     {

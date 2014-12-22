@@ -1,4 +1,4 @@
-﻿namespace sharp1._1
+﻿namespace networks
 {
     partial class Form1
     {
