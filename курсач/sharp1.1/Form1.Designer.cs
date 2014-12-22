@@ -30,8 +30,8 @@
         {
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.TreadIn = new System.ComponentModel.BackgroundWorker();
-            this.Thread_SendFile = new System.ComponentModel.BackgroundWorker();
+            this.recieveThread = new System.ComponentModel.BackgroundWorker();
+            this.sendThread = new System.ComponentModel.BackgroundWorker();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -51,7 +51,7 @@
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.button3 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.broadcast_listen_thread = new System.ComponentModel.BackgroundWorker();
+            this.broadcastThread = new System.ComponentModel.BackgroundWorker();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.файлToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.правкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,19 +70,19 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // TreadIn
+            // recieveThread
             // 
-            this.TreadIn.WorkerReportsProgress = true;
-            this.TreadIn.WorkerSupportsCancellation = true;
-            this.TreadIn.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.TreadIn.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.recieveThread.WorkerReportsProgress = true;
+            this.recieveThread.WorkerSupportsCancellation = true;
+            this.recieveThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.recieveThread_DoWork);
+            this.recieveThread.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.recieveThread_ProgressChanged);
             // 
-            // Thread_SendFile
+            // sendThread
             // 
-            this.Thread_SendFile.WorkerReportsProgress = true;
-            this.Thread_SendFile.WorkerSupportsCancellation = true;
-            this.Thread_SendFile.DoWork += new System.ComponentModel.DoWorkEventHandler(this.Thread_SendFile_DoWork);
-            this.Thread_SendFile.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.Thread_SendFile_ProgressChanged);
+            this.sendThread.WorkerReportsProgress = true;
+            this.sendThread.WorkerSupportsCancellation = true;
+            this.sendThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.sendThread_DoWork);
+            this.sendThread.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.sendThread_ProgressChanged);
             // 
             // groupBox3
             // 
@@ -268,10 +268,10 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Хост";
             // 
-            // broadcast_listen_thread
+            // broadcastThread
             // 
-            this.broadcast_listen_thread.WorkerSupportsCancellation = true;
-            this.broadcast_listen_thread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.broadcast_listen_thread_DoWork);
+            this.broadcastThread.WorkerSupportsCancellation = true;
+            this.broadcastThread.DoWork += new System.ComponentModel.DoWorkEventHandler(this.broadcastThread_DoWork);
             // 
             // menuStrip1
             // 
@@ -322,7 +322,7 @@
             // оПрограммеToolStripMenuItem
             // 
             this.оПрограммеToolStripMenuItem.Name = "оПрограммеToolStripMenuItem";
-            this.оПрограммеToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.оПрограммеToolStripMenuItem.Size = new System.Drawing.Size(149, 22);
             this.оПрограммеToolStripMenuItem.Text = "О программе";
             this.оПрограммеToolStripMenuItem.Click += new System.EventHandler(this.оПрограммеToolStripMenuItem_Click);
             // 
@@ -360,8 +360,8 @@
 
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         public System.Windows.Forms.SaveFileDialog saveFileDialog1;
-        private System.ComponentModel.BackgroundWorker TreadIn;
-        private System.ComponentModel.BackgroundWorker Thread_SendFile;
+        private System.ComponentModel.BackgroundWorker recieveThread;
+        private System.ComponentModel.BackgroundWorker sendThread;
         private System.Windows.Forms.GroupBox groupBox3;
         public System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.GroupBox groupBox2;
@@ -378,7 +378,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button2;
-        private System.ComponentModel.BackgroundWorker broadcast_listen_thread;
+        private System.ComponentModel.BackgroundWorker broadcastThread;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.Label label3;

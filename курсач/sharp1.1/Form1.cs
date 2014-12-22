@@ -50,10 +50,10 @@ namespace sharp1._1
             InitializeComponent();
             comboBox1.SelectedIndex = 0;
 
-            TreadIn.WorkerReportsProgress = true;
-            TreadIn.WorkerSupportsCancellation = true;
-            TreadIn.RunWorkerAsync();
-            broadcast_listen_thread.RunWorkerAsync();
+            recieveThread.WorkerReportsProgress = true;
+            recieveThread.WorkerSupportsCancellation = true;
+            recieveThread.RunWorkerAsync();
+            broadcastThread.RunWorkerAsync();
             richTextBox1.Text = "Программа запущена успешно!";
 
 
@@ -73,21 +73,13 @@ namespace sharp1._1
         private void SendBtn_Click(object sender, EventArgs e)
         {
             host = comboBox2.Text;
+            port = 5678;
 
-            try
-            {
-                port = 5678;
-            }
-            catch
-            {
-                MessageBox.Show("Введите корректный порт!");
-                return;
-            }
-            Thread_SendFile.RunWorkerAsync();
+            sendThread.RunWorkerAsync();
         }
 
         // Приём файла
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        private void recieveThread_DoWork(object sender, DoWorkEventArgs e)
         {
 
             BackgroundWorker worker = sender as BackgroundWorker;
@@ -203,7 +195,7 @@ namespace sharp1._1
                                         }
 
 
-                                        TreadIn.ReportProgress(progres, speed);
+                                        recieveThread.ReportProgress(progres, speed);
                                         count = 0;
                                     }
                                     //и записываем в поток
@@ -214,12 +206,12 @@ namespace sharp1._1
                                 }
 
                             //Читаем до тех пор, пока в очереди не останется данных
-                        } while (all_size != filesize && !Thread_SendFile.CancellationPending);
+                        } while (all_size != filesize && !sendThread.CancellationPending);
 
-                        if (TreadIn.CancellationPending)
+                        if (recieveThread.CancellationPending)
                         {
                             ReceiveSocket.Close();
-                            TreadIn.ReportProgress(0, "0");
+                            recieveThread.ReportProgress(0, "0");
                         }
 
                         ReceiveSocket.Close();
@@ -238,16 +230,16 @@ namespace sharp1._1
 
 
         }
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void recieveThread_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
             speedText.Text = e.UserState.ToString();
         }
 
-        private void Thread_SendFile_DoWork(object sender, DoWorkEventArgs e)
+        private void sendThread_DoWork(object sender, DoWorkEventArgs e)
         {
             SendFile(textBox3.Text, 5678, host);
-            Thread_SendFile.CancelAsync();
+            sendThread.CancelAsync();
         }
 
         private void ToLogSafe(string text)
@@ -414,7 +406,7 @@ namespace sharp1._1
                                 speed = Convert.ToString(speed_cur);
                                 speed_last = speed_cur;
                             }
-                            Thread_SendFile.ReportProgress(progres, speed);
+                            sendThread.ReportProgress(progres, speed);
 
                             count = 0;
                         }
@@ -429,7 +421,7 @@ namespace sharp1._1
             Connector.Close();
         }
 
-        private void Thread_SendFile_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void sendThread_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
             speedText.Text = e.UserState.ToString();
@@ -440,8 +432,8 @@ namespace sharp1._1
         {
             try
             {
-                Thread_SendFile.CancelAsync();
-                TreadIn.CancelAsync();
+                sendThread.CancelAsync();
+                recieveThread.CancelAsync();
             }
             catch
             {
@@ -498,7 +490,7 @@ namespace sharp1._1
         }
 
 
-        private void broadcast_listen_thread_DoWork(object sender, DoWorkEventArgs e)
+        private void broadcastThread_DoWork(object sender, DoWorkEventArgs e)
         {
             Socket sock = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, 9050);
