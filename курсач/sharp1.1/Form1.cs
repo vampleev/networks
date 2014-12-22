@@ -43,7 +43,7 @@ namespace networks
             System.IO.File.AppendAllText("log.txt", line);
 
         }
-        private void ToLogSafe(string text)
+        private void toLogSafe(string text)
         {
             if (InvokeRequired)
                 this.BeginInvoke(new Action<string>((s) =>
@@ -59,7 +59,6 @@ namespace networks
             form.name_of_user(ref login);
             broadcast_check = broadcast_check + " " + login;
             InitializeComponent();
-            comboBox1.SelectedIndex = 0;
             IP = getMyIp();
 
             recieveThread.WorkerReportsProgress = true;
@@ -84,10 +83,18 @@ namespace networks
 
         private void SendBtn_Click(object sender, EventArgs e)
         {
-            host = comboBox2.Text;
-            port = 5678;
+            if (comboBox2.Text != String.Empty)
+            {
+                host = comboBox2.Text;
+                port = 5678;
 
-            sendThread.RunWorkerAsync();
+                if (textBox3.Text != String.Empty)
+                    sendThread.RunWorkerAsync();
+                else
+                    toLogSafe(login + " | Отправка файла | Ошибка: не выбран файл");
+            }
+            else
+                toLogSafe(login + " | Отправка файла | Ошибка: не выбран адрес хоста");
         }
 
         // Приём файла
@@ -170,7 +177,7 @@ namespace networks
 
                                     if (!AcessFileSafe(f))
                                     {
-                                        ToLogSafe("Передача отклонена пользователем! " + another_login);
+                                        toLogSafe(login + " | Приём файла " + resFilePath + " | Передача отклонена" );
                                         mess[0] = 0;
                                         ReceiveSocket.Send(mess);
                                         return;
@@ -224,23 +231,20 @@ namespace networks
                         {
                             ReceiveSocket.Close();
                             recieveThread.ReportProgress(0, "0");
+                            toLogSafe(login + " | Приём файла " + resFilePath + " | Передача отменена");
                         }
-
-                        ReceiveSocket.Close();
-
-                        ToLogSafe("Приём " + resFilePath + " завершен! " + login);
-
+                        else
+                        {
+                            ReceiveSocket.Close();
+                            toLogSafe(login + " | Приём файла " + resFilePath + " | завершен от " + another_login);
+                        }
                     }
-
                 }
                 catch (System.Exception er)
                 {
-
-                    ToLogSafe("Ошибка : " + er.Message);
+                    toLogSafe("Ошибка : " + er.Message);
                 }
             }
-
-
         }
         private void recieveThread_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
@@ -248,9 +252,10 @@ namespace networks
             speedText.Text = e.UserState.ToString();
         }
 
+
         private void sendThread_DoWork(object sender, DoWorkEventArgs e)
         {
-            SendFile(textBox3.Text, 5678, host);
+            sendFile(textBox3.Text, 5678, host);
             sendThread.CancelAsync();
         }
 
@@ -300,7 +305,7 @@ namespace networks
 
 
 
-        public void SendFile(string FileName, int port, string ip)
+        public void sendFile(string FileName, int port, string ip)
         {
             //Коннектимся
             bool access = false;
@@ -315,8 +320,8 @@ namespace networks
             }
             catch (Exception e)
             {
-                ToLogSafe("Ошибка");
-                ToLogSafe(e.Message.ToString());
+                toLogSafe("Ошибка");
+                toLogSafe(e.Message.ToString());
                 return;
             }
             //ToLogSafe("Соединение установлено!");
@@ -355,15 +360,25 @@ namespace networks
                     //Вначале отправим название файла
                     Connector.Send(First256Bytes.ToArray());
                     Connector.Send(Second256Bytes.ToArray());
-                    ToLogSafe("Отправка файла " + login + " " + resFileName);
+                    toLogSafe(login + " | Отправка файла " + resFileName + " | Ожидание разрешения от " + another_login);
                     while (!access) // Ожидаем подтвердения
                     {
                         byte[] mess = new byte[1];
-                        Connector.Receive(mess);
+                        try
+                        {
+
+                            Connector.Receive(mess);
+                        }
+                        catch (Exception e)
+                        {
+                            //ToLogSafe("Ошибка");
+                            toLogSafe(login + " | Отправка файла " + resFileName + " | Ошибка: " + another_login + " " + e.Message.ToString());
+                            return;
+                        }
                         access = mess[0] == 0 ? false : true;
                     }
 
-                    ToLogSafe("Начата отправка файла " + login + " " + resFileName);
+                    toLogSafe(login + " | Отправка файла " + resFileName + " | Начало передачи файла " + another_login);
                     Stopwatch stopWatch = new Stopwatch();
                     Stopwatch stopWatch2 = new Stopwatch();
                     int count = 0;
@@ -388,7 +403,7 @@ namespace networks
                         }
                         catch (Exception e)
                         {
-                            ToLogSafe(e.Message);
+                            toLogSafe(login + " | Отпрака файла " + resFileName + " | Ошибка: " + another_login + " " + e.Message);
                             return;
                         }
                         all_size += ReadedBytes.Length;
@@ -421,7 +436,7 @@ namespace networks
                 }
             }
             //Завершаем передачу данных
-            ToLogSafe("Закончена отпрака файла " + login + " " + resFileName);
+            toLogSafe(login + " | Отправка файла " + resFileName + " | Передача завершена");
             Connector.Close();
         }
 
@@ -489,7 +504,7 @@ namespace networks
             if (InvokeRequired)
                 this.BeginInvoke(new Action<string>((s) =>
                 {
-                    sendMes(s, "ans");
+                    sendMes(s, "ans " + login);
                 }), ip);
         }
 
@@ -500,7 +515,6 @@ namespace networks
             IPEndPoint iep = new IPEndPoint(IPAddress.Any, 6789);
             sock.Bind(iep);
             EndPoint ep = (EndPoint)iep;
-            //ToLogSafe("Готов к приёму широковещательных сообщений!");
 
             byte[] data = new byte[256];
             while (true)
@@ -511,16 +525,17 @@ namespace networks
                 ip = ip.Split(':')[0];
                 if (ip != IP)
                 {
+                    another_login = stringData.Split(' ')[1];
                     if (stringData.Split(' ')[0] == broadcast_check.Split(' ')[0])
                     {
-                        ToLogSafe("Пришло широковещательное сообщение от " + stringData.Split(' ')[1]);
-                        another_login = stringData.Split(' ')[1];
+                        toLogSafe(another_login + " | Соединение " + " | Установлено соединение с " + login);
                         //comboBox1.Items.Add(ip);
                         sendMesSafe(ip);
                     }
-                    if (stringData == "ans")
+                    if (stringData.Split(' ')[0] == "ans")
                     {
                         toComboSafe(ip);
+                        toLogSafe(login + " | Соединение " + " | Установлено соединение с " + another_login);
                     }
                 }
             }
@@ -529,6 +544,11 @@ namespace networks
         {
             AboutForm form = new AboutForm();
             form.ShowDialog();
+        }
+
+        private void comboBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.KeyChar = '\0';
         }
     }
 }
