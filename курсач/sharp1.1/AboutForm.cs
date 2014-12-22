@@ -9,9 +9,9 @@ using System.Windows.Forms;
 
 namespace sharp1._1
 {
-    public partial class f_about : Form
+    public partial class AboutForm : Form
     {
-        public f_about()
+        public AboutForm()
         {
             InitializeComponent();
         }

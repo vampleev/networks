@@ -1,6 +1,6 @@
 ﻿namespace sharp1._1
 {
-    partial class f_about
+    partial class AboutForm
     {
         /// <summary>
         /// Required designer variable.
@@ -39,9 +39,8 @@
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.Size = new System.Drawing.Size(355, 119);
             this.richTextBox1.TabIndex = 0;
-            this.richTextBox1.Text = "Программа выполнена в рамках курсового проекта по курсу \"Вычислительные и компьют" +
-    "ерные сети\".\n\nАвторы: \nКлёсов В. А. ИУ7-71,\nАмплеев В. М. ИУ7-73.\n\nМГТУ им. Баум" +
-    "ана, 2014 г.";
+            this.richTextBox1.Text = "Программа выполнена в рамках курсовой работы по курсу \"Компьютерные сети\".\n\nАвтор" +
+    "ы: \nКлёсов В. А. ИУ7-71,\nАмплеев В. М. ИУ7-73.\n\nМГТУ им. Баумана, 2014 г.";
             // 
             // button1
             // 
@@ -53,14 +52,14 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // f_about
+            // FormAbout
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(379, 172);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.richTextBox1);
-            this.Name = "f_about";
+            this.Name = "FormAbout";
             this.Text = "О программе";
             this.ResumeLayout(false);
 

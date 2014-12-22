@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace sharp1._1
 {
-    public partial class auth : Form
+    public partial class AuthForm : Form
     {
 
         string login = "user";
@@ -17,7 +17,7 @@ namespace sharp1._1
         bool status = false;
 
 
-        public auth()
+        public AuthForm()
         {
             InitializeComponent();
         }

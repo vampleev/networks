@@ -46,3 +46,7 @@ Temporary Items
 *.exe
 *.pdb
 *.manifest
+*.cache
+*.txt
+*.resources
+*.mp3

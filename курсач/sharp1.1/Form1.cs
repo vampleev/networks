@@ -20,7 +20,6 @@ namespace sharp1._1
     {
 
         public bool send_allow = true;
-        // C_SendFile Send;
 
         string broadcast_check = "some_word";
         string host;
@@ -46,7 +45,7 @@ namespace sharp1._1
 
         public Form1()
         {
-            auth form = new auth();
+            AuthForm form = new AuthForm();
             form.ShowDialog();
             InitializeComponent();
             comboBox1.SelectedIndex = 0;
@@ -77,27 +76,15 @@ namespace sharp1._1
 
             try
             {
-                port = int.Parse(textBox2.Text);
+                port = 5678;
             }
             catch
             {
                 MessageBox.Show("Введите корректный порт!");
                 return;
             }
-            //Send = new C_SendFile(host, port);
             Thread_SendFile.RunWorkerAsync();
         }
-
-        //private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        //{
-        //    if (comboBox1.SelectedIndex == 0)
-        //    {
-        //        send_allow = true;
-        //        ToLogSafe("ok");
-        //        return;
-        //    }
-        //    send_allow = false;
-        //}
 
         // Приём файла
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
@@ -541,10 +528,9 @@ namespace sharp1._1
             }
             sock.Close();
         }
-
-        private void оПрограммеToolStripMenuItem_Click_1(object sender, EventArgs e)
+        private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            f_about form = new f_about();
+            AboutForm form = new AboutForm();
             form.ShowDialog();
         }
     }

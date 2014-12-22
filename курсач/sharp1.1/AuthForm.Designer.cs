@@ -1,6 +1,6 @@
 ﻿namespace sharp1._1
 {
-    partial class auth
+    partial class AuthForm
     {
         /// <summary>
         /// Required designer variable.
